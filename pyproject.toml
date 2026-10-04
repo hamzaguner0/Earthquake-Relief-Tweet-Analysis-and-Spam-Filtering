@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deprem-nlp"
+version = "0.2.0"
+description = "Turkish relief-request classification research with explicit label provenance"
+requires-python = ">=3.10"
+dependencies = ["pandas>=2.2,<4", "scikit-learn>=1.5,<2", "joblib>=1.4,<2"]
+
+[project.optional-dependencies]
+app = ["streamlit>=1.40,<2"]
+transformer = ["torch>=2.6,<3", "transformers>=4.51,<5", "safetensors>=0.5,<1"]
+
+[project.scripts]
+deprem-nlp = "deprem_nlp.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
