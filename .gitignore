@@ -20,3 +20,6 @@ fine_tuned_distilberturk/
 *.safetensors
 *.pt
 *.log
+*.ipynb
+!Dil_Modeli_ve_Eleme.ipynb
+!Tweet_Cekme.ipynb
