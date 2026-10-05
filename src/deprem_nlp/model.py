@@ -54,8 +54,8 @@ def pseudo_label(bundle, frame, threshold=0.8):
     if frame["text"].isna().any() or frame["text"].map(text_key).eq("").any():
         raise ValueError("Empty text must be reviewed.")
     known = bundle["train_keys"] | bundle["test_keys"]
-    frame = frame.loc[~frame["text"].map(text_key).isin(known)].copy()
-    frame = frame.drop_duplicates("text")
+    keys = frame["text"].map(text_key)
+    frame = frame.loc[~keys.isin(known) & ~keys.duplicated()].copy()
     if len(frame) == 0:
         return frame.assign(label=[], label_source=[], prob_1=[], needs_review=[])
     probabilities = score(bundle, frame["text"])

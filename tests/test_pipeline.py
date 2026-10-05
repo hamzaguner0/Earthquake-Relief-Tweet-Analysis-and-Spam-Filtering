@@ -34,6 +34,28 @@ class PipelineTests(unittest.TestCase):
             self.assertEqual(len(labeled), 1)
             self.assertTrue(labeled["label_source"].eq("pseudo").all())
 
+
+    def test_pseudo_labels_deduplicate_normalized_new_texts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            train(self.frame, tmp, demo=True)
+            bundle = load_model(Path(tmp) / "baseline.joblib")
+            candidate = pd.DataFrame({"text": ["  SENTETİK yeni mesaj  ", "sentetik yeni mesaj"]})
+            labeled = pseudo_label(bundle, candidate)
+            self.assertEqual(len(labeled), 1)
+            self.assertTrue(labeled["label_source"].eq("pseudo").all())
+
+    def test_holdout_only_tokens_not_in_word_vocabulary(self):
+        frame = self.frame.copy()
+        frame["text"] = [f"{text} qzmarker{index}" for index, text in enumerate(frame["text"])]
+        with tempfile.TemporaryDirectory() as tmp:
+            train(frame, tmp, demo=True)
+            bundle = load_model(Path(tmp) / "baseline.joblib")
+            word = bundle["pipeline"].named_steps["features"].transformer_list[0][1]
+            for key in bundle["test_keys"]:
+                self.assertNotIn(key.split()[-1], word.vocabulary_)
+            for key in bundle["train_keys"]:
+                self.assertIn(key.split()[-1], word.vocabulary_)
+
     def test_audit_contains_counts_only(self):
         text = "Sentetik: @demo_user demo@example.com 0555 000 11 22"
         report = audit(pd.DataFrame({"text": [text]}))
